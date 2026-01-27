@@ -1,0 +1,23 @@
+{
+  "name": "marp-workspace",
+  "version": "1.0.0",
+  "description": "Multi-deck presentation workspace using Marp",
+  "private": true,
+  "scripts": {
+    "preview": "marp --theme-set ./shared/themes --allow-local-files -s",
+    "build": "marp --theme-set ./shared/themes --allow-local-files",
+    "build:all:html": "marp --theme-set ./shared/themes --html --input-dir ./decks/ --output ./dist/html/",
+    "build:all:pdf": "marp --theme-set ./shared/themes --pdf --allow-local-files --input-dir ./decks/ --output ./dist/pdf/",
+    "build:all:pptx": "marp --theme-set ./shared/themes --pptx --allow-local-files --input-dir ./decks/ --output ./dist/pptx/",
+    "build:all:pptx:editable": "marp --theme-set ./shared/themes --pptx --allow-local-files --pptx-editable --input-dir ./decks/ --output ./dist/pptx-editable/",
+    "build:all": "npm run build:all:html && npm run build:all:pdf && npm run build:all:pptx",
+    "clean": "rm -rf dist node_modules",
+    "prepare": "node -e \"['dist/html','dist/pdf','dist/pptx','dist/pptx-editable'].forEach(d=>require('fs').mkdirSync(d,{recursive:true}))\""
+  },
+  "devDependencies": {
+    "@marp-team/marp-cli": "^4.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

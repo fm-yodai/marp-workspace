@@ -1,0 +1,88 @@
+/* @theme company */
+@import 'default';
+
+/**
+ * Company Theme
+ * Custom branded theme for presentations
+ */
+
+:root {
+  --color-background: #ffffff;
+  --color-foreground: #24292e;
+  --color-highlight: #0366d6;
+  --color-dimmed: #6a737d;
+}
+
+section {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-size: 28px;
+  padding: 70px;
+}
+
+h1 {
+  color: var(--color-highlight);
+  border-bottom: 2px solid var(--color-highlight);
+  padding-bottom: 0.3em;
+}
+
+h2 {
+  color: var(--color-foreground);
+  border-bottom: 1px solid var(--color-dimmed);
+}
+
+pre {
+  background: #f6f8fa;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+}
+
+code {
+  background: #f6f8fa;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-size: 85%;
+}
+
+a {
+  color: var(--color-highlight);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Pagination in footer */
+section::after {
+  content: attr(data-marpit-pagination) ' / ' attr(data-marpit-pagination-total);
+  position: absolute;
+  bottom: 20px;
+  right: 70px;
+  font-size: 16px;
+  color: var(--color-dimmed);
+}
+
+/* Lead slide class for title slides */
+section.lead {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+section.lead h1 {
+  font-size: 64px;
+  border-bottom: none;
+}
+
+/* Invert class for dark slides */
+section.invert {
+  background-color: #24292e;
+  color: #ffffff;
+}
+
+section.invert h1,
+section.invert h2 {
+  color: #ffffff;
+}
