@@ -1,184 +1,190 @@
-# Marp Multi-Deck Presentation Workspace
+# Marp マルチデッキプレゼンテーションワークスペース
 
-A complete workspace for creating and managing multiple presentation decks using [Marp](https://marp.app/) (Markdown Presentation Ecosystem).
+[Marp](https://marp.app/)（Markdown Presentation Ecosystem）を使用して、複数のプレゼンテーションデッキを作成・管理するための完全なワークスペースです。
 
-## Features
+## 機能
 
-- **Template System** - Reusable template deck with examples of all major features
-- **Custom Theme** - Professional company theme with CSS variables for easy customization
-- **Automated Builds** - npm scripts for HTML, PDF, and PowerPoint exports
-- **Organized Structure** - Each presentation in its own directory with assets
-- **Live Preview** - Watch mode with auto-reload for rapid development
-- **Version Control** - Plain Markdown files work perfectly with git
+- **テンプレートシステム** - 主要機能のサンプルを含む再利用可能なテンプレートデッキ
+- **カスタムテーマ** - CSS変数による簡単なカスタマイズが可能なプロフェッショナルな企業テーマ
+- **自動ビルド** - HTML、PDF、PowerPointエクスポート用のnpmスクリプト
+- **整理された構造** - 各プレゼンテーションは独自のディレクトリとアセットを持つ
+- **ライブプレビュー** - 自動リロード付きウォッチモードで高速開発
+- **バージョン管理** - プレーンなMarkdownファイルはgitと完璧に連携
 
-## Prerequisites
+## クイックスタート
 
-### Required
+**このワークスペースは初めてですか？** 詳細なステップバイステップのインストール手順については、[セットアップガイド（SETUP.md）](SETUP.md)をご覧ください。
 
-- **Node.js** v18 or higher ([Download](https://nodejs.org/))
-  - Verify: `node --version`
-  - npm v8+ is included with Node.js
-- **Chromium or Chrome** (required for PDF/PPTX export)
-  - Usually installed automatically with most systems
+**既にセットアップ済みですか？** プレゼンテーション作成を始めるには、[使い方](#使い方)にジャンプしてください。
 
-### Optional
+## 前提条件
 
-- **LibreOffice Impress** (required only for `--pptx-editable` option)
-  - See [LibreOffice Setup](#libreoffice-impress-setup) section below
-- **VS Code** with [Marp for VS Code](https://marketplace.visualstudio.com/items?itemName=marp-team.marp-vscode) extension
-  - Provides in-editor preview and export
+### 必須
 
-## Setup
+- **Node.js** v18以上（[ダウンロード](https://nodejs.org/)）
+  - 確認方法：`node --version`
+  - npm v8以上はNode.jsに含まれています
+- **ChromiumまたはChrome**（PDF/PPTXエクスポートに必要）
+  - ほとんどのシステムで通常は自動的にインストールされています
 
-Install dependencies:
+### オプション
+
+- **LibreOffice Impress**（`--pptx-editable`オプションにのみ必要）
+  - [LibreOffice Impressのセットアップ](#libreoffice-impressのセットアップ)セクションを参照
+- **VS Code**と[Marp for VS Code](https://marketplace.visualstudio.com/items?itemName=marp-team.marp-vscode)拡張機能
+  - エディタ内でのプレビューとエクスポートが可能になります
+
+## セットアップ
+
+依存関係をインストールします：
 
 ```bash
 npm install
 ```
 
-This will:
-- Install `@marp-team/marp-cli`
-- Auto-create `dist/` output directories
+これにより：
+- `@marp-team/marp-cli`がインストールされます
+- `dist/`出力ディレクトリが自動作成されます
 
-### LibreOffice Impress Setup
+### LibreOffice Impressのセットアップ
 
-The `--pptx-editable` option requires LibreOffice Impress. **This is optional** - standard PPTX export works without it.
+`--pptx-editable`オプションにはLibreOffice Impressが必要です。**これはオプションです** - 標準のPPTXエクスポートはこれなしで動作します。
 
-#### Linux (Debian/Ubuntu)
+#### Linux（Debian/Ubuntu）
 
 ```bash
 sudo apt update
 sudo apt install libreoffice-impress
 ```
 
-#### Linux (RHEL/CentOS/Fedora)
+#### Linux（RHEL/CentOS/Fedora）
 
 ```bash
 sudo dnf install libreoffice-impress
-# or for older systems
+# または古いシステムの場合
 sudo yum install libreoffice-impress
 ```
 
 #### macOS
 
 ```bash
-# Using Homebrew
+# Homebrewを使用
 brew install --cask libreoffice
 
-# Or download from official website
+# または公式ウェブサイトからダウンロード
 # https://www.libreoffice.org/download/download/
 ```
 
 #### Windows
 
-1. Download LibreOffice installer from https://www.libreoffice.org/download/download/
-2. Run the installer
-3. Ensure "LibreOffice Impress" component is selected
-4. Complete installation and restart if prompted
+1. https://www.libreoffice.org/download/download/ からLibreOfficeインストーラーをダウンロード
+2. インストーラーを実行
+3. 「LibreOffice Impress」コンポーネントが選択されていることを確認
+4. インストールを完了し、プロンプトが表示されたら再起動
 
-#### Verify Installation
+#### インストールの確認
 
 ```bash
 # Linux/macOS
 which libreoffice
 soffice --version
 
-# Windows (Command Prompt)
+# Windows（コマンドプロンプト）
 where soffice
 "C:\Program Files\LibreOffice\program\soffice.exe" --version
 ```
 
-## Usage
+## 使い方
 
-### Single Deck Commands (Primary Workflow)
+### 単一デッキコマンド（主なワークフロー）
 
-| Command | Description |
-|---------|-------------|
-| `npm run preview <path>` | Live preview with auto-reload |
-| `npm run build -- <format> <path>` | Build to specified format |
+| コマンド | 説明 |
+|---------|------|
+| `npm run preview <path>` | 自動リロード付きライブプレビュー |
+| `npm run build -- <format> <path>` | 指定フォーマットでビルド |
 
-**Examples:**
+**例：**
 
 ```bash
-# Preview with live reload
+# 自動リロード付きプレビュー
 npm run preview decks/2026-01_sample/deck.md
 
-# Build to PDF
+# PDFにビルド
 npm run build -- --pdf decks/2026-01_sample/deck.md
 
-# Build to PowerPoint
+# PowerPointにビルド
 npm run build -- --pptx decks/2026-01_sample/deck.md
 
-# Build to editable PowerPoint (requires LibreOffice)
+# 編集可能なPowerPointにビルド（LibreOfficeが必要）
 npm run build -- --pptx --pptx-editable decks/2026-01_sample/deck.md
 
-# Build to HTML with custom output
+# カスタム出力でHTMLにビルド
 npm run build -- --html decks/2026-01_sample/deck.md -o dist/custom.html
 ```
 
-### All Decks Commands
+### 全デッキコマンド
 
-| Command | Description |
-|---------|-------------|
-| `npm run build:all:html` | Export all decks to HTML |
-| `npm run build:all:pdf` | Export all decks to PDF |
-| `npm run build:all:pptx` | Export all decks to PowerPoint |
-| `npm run build:all:pptx:editable` | Export all decks to editable PPTX |
-| `npm run build:all` | Build HTML + PDF + PPTX for all |
+| コマンド | 説明 |
+|---------|------|
+| `npm run build:all:html` | 全デッキをHTMLにエクスポート |
+| `npm run build:all:pdf` | 全デッキをPDFにエクスポート |
+| `npm run build:all:pptx` | 全デッキをPowerPointにエクスポート |
+| `npm run build:all:pptx:editable` | 全デッキを編集可能なPPTXにエクスポート |
+| `npm run build:all` | 全デッキをHTML + PDF + PPTXにビルド |
 
-**Examples:**
+**例：**
 
 ```bash
-# Build all decks to PDF
+# 全デッキをPDFにビルド
 npm run build:all:pdf
 
-# Build all decks to all standard formats
+# 全デッキを全標準フォーマットにビルド
 npm run build:all
 ```
 
-### Utility Commands
+### ユーティリティコマンド
 
-| Command | Description |
-|---------|-------------|
-| `npm run clean` | Remove dist/ and node_modules/ |
+| コマンド | 説明 |
+|---------|------|
+| `npm run clean` | dist/とnode_modules/を削除 |
 
-## Creating a New Deck
+## 新しいデッキの作成
 
-### Step-by-Step Workflow
+### ステップバイステップワークフロー
 
 ```bash
-# 1. Copy template directory
+# 1. テンプレートディレクトリをコピー
 cp -r decks/000_template decks/2026-02_my-project
 
-# 2. Edit the deck
-# Open decks/2026-02_my-project/deck.md in your editor
+# 2. デッキを編集
+# エディタでdecks/2026-02_my-project/deck.mdを開く
 
-# 3. Add assets
-# Place images in decks/2026-02_my-project/assets/
+# 3. アセットを追加
+# 画像をdecks/2026-02_my-project/assets/に配置
 
-# 4. Preview with live reload
+# 4. 自動リロード付きでプレビュー
 npm run preview decks/2026-02_my-project/deck.md
 
-# 5. Build to your preferred format
+# 5. お好みのフォーマットでビルド
 npm run build -- --pdf decks/2026-02_my-project/deck.md
 ```
 
-### Naming Convention
+### 命名規則
 
-Format: `YYYY-MM_descriptive-name`
+フォーマット：`YYYY-MM_説明的な名前`
 
-**Examples:**
+**例：**
 - `2026-01_quarterly-review`
 - `2026-03_product-launch`
 - `2026-06_team-offsite`
 
-This keeps decks chronologically sorted in the file system.
+これにより、デッキがファイルシステム内で時系列順にソートされます。
 
-## Working with Themes
+## テーマの操作
 
-### Using the Company Theme
+### 企業テーマの使用
 
-The custom `company` theme is already configured in the template. To use it, add to your deck frontmatter:
+カスタム`company`テーマは既にテンプレートで設定されています。使用するには、デッキのフロントマターに追加します：
 
 ```yaml
 ---
@@ -189,9 +195,9 @@ size: 16:9
 ---
 ```
 
-### Customizing Colors
+### 色のカスタマイズ
 
-Edit `shared/themes/company.css` and modify the CSS variables in `:root`:
+`shared/themes/company.css`を編集し、`:root`のCSS変数を変更します：
 
 ```css
 :root {
@@ -202,62 +208,62 @@ Edit `shared/themes/company.css` and modify the CSS variables in `:root`:
 }
 ```
 
-### Adding New Themes
+### 新しいテーマの追加
 
-1. Create `shared/themes/mytheme.css`
-2. Add theme identifier at the top: `/* @theme mytheme */`
-3. Define your styles
-4. Use in deck: `theme: mytheme`
+1. `shared/themes/mytheme.css`を作成
+2. 先頭にテーマ識別子を追加：`/* @theme mytheme */`
+3. スタイルを定義
+4. デッキで使用：`theme: mytheme`
 
-### Built-in Themes
+### ビルトインテーマ
 
-Marp includes these themes (no CSS file needed):
-- `default` - Clean and simple
-- `gaia` - Modern and colorful
-- `uncover` - Minimalist reveal style
+Marpには以下のテーマが含まれています（CSSファイル不要）：
+- `default` - クリーンでシンプル
+- `gaia` - モダンでカラフル
+- `uncover` - ミニマリストなリビールスタイル
 
-## Output Formats Comparison
+## 出力フォーマットの比較
 
-| Format | Use Case | Pros | Cons |
-|--------|----------|------|------|
-| **HTML** | Web sharing, interactive | Smallest file, works everywhere | Requires browser |
-| **PDF** | Printing, archival | Universal, preserves layout | Large file size |
-| **PPTX** | Further editing in PowerPoint | Editable in Office | May have layout differences |
-| **PPTX (editable)** | Heavy editing needed | More editable layers | Requires LibreOffice, layout issues |
+| フォーマット | 用途 | 長所 | 短所 |
+|------------|------|------|------|
+| **HTML** | Web共有、インタラクティブ | 最小ファイルサイズ、どこでも動作 | ブラウザが必要 |
+| **PDF** | 印刷、アーカイブ | ユニバーサル、レイアウト保持 | 大きなファイルサイズ |
+| **PPTX** | PowerPointでのさらなる編集 | Officeで編集可能 | レイアウトの違いあり |
+| **PPTX（編集可能）** | 大幅な編集が必要 | より編集可能なレイヤー | LibreOfficeが必要、レイアウトの問題 |
 
-### Editable PPTX Notes
+### 編集可能なPPTXに関する注意
 
-- Requires LibreOffice Impress installed on system
-- Uses `--pptx-editable` flag
-- May have layout/styling inconsistencies
-- Best for starting point that will be heavily modified in PowerPoint
-- **Standard PPTX recommended for most use cases**
+- システムにLibreOffice Impressがインストールされている必要があります
+- `--pptx-editable`フラグを使用
+- レイアウト/スタイリングの不一致がある場合があります
+- PowerPointで大幅に変更する出発点として最適
+- **ほとんどの用途には標準PPTXを推奨**
 
-## Tips & Best Practices
+## Tips & ベストプラクティス
 
-### Images
-- Optimize before adding (recommend < 1MB each)
-- Use relative paths: `assets/image.png`
-- Supported formats: PNG, JPG, SVG, GIF
+### 画像
+- 追加前に最適化（各1MB未満を推奨）
+- 相対パスを使用：`assets/image.png`
+- サポートされているフォーマット：PNG、JPG、SVG、GIF
 
-### Assets
-- Keep per-deck for portability
-- Use descriptive filenames
-- Document image sources for licensing
+### アセット
+- 移植性のためデッキごとに保持
+- 説明的なファイル名を使用
+- ライセンスのため画像ソースを記録
 
-### Version Control
-- Commit source `.md` files
-- Don't commit `dist/` outputs (already in `.gitignore`)
-- Include meaningful commit messages
+### バージョン管理
+- ソースの`.md`ファイルをコミット
+- `dist/`出力はコミットしない（既に`.gitignore`に含まれています）
+- 意味のあるコミットメッセージを含める
 
-### Slide Design
-- Aim for 10-20 slides for 20-minute presentations
-- One main idea per slide
-- Use visuals to support text
-- Limit text to 6 lines per slide
+### スライドデザイン
+- 20分間のプレゼンテーションには10〜20スライドを目指す
+- スライドごとに1つの主要なアイデア
+- テキストをサポートするために視覚要素を使用
+- スライドあたりテキストを6行に制限
 
-### Code Blocks
-Use syntax highlighting:
+### コードブロック
+構文ハイライトを使用：
 
 ````markdown
 ```javascript
@@ -267,167 +273,167 @@ function example() {
 ```
 ````
 
-Supported languages: JavaScript, Python, Java, Go, Rust, and many more.
+サポートされている言語：JavaScript、Python、Java、Go、Rustなど多数。
 
-### Two-Column Layouts
+### 2カラムレイアウト
 
-Use HTML grid:
+HTMLグリッドを使用：
 
 ```html
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
 <div>
 
-Left content here
+左側のコンテンツ
 
 </div>
 <div>
 
-Right content here
+右側のコンテンツ
 
 </div>
 </div>
 ```
 
-### Speaker Notes
+### スピーカーノート
 
-Add after slide separator (not visible in presentation):
+スライド区切りの後に追加（プレゼンテーションには表示されません）：
 
 ```markdown
 ---
 
-# Slide Title
+# スライドタイトル
 
-Content here
+ここにコンテンツ
 
 <!--
-Speaker notes here
-- Remember to mention X
-- Emphasize Y
+ここにスピーカーノート
+- Xについて言及することを忘れずに
+- Yを強調
 -->
 ```
 
-## Troubleshooting
+## トラブルシューティング
 
-### Installation Issues
+### インストールの問題
 
-**Error: Cannot find module '@marp-team/marp-cli'**
+**エラー：Cannot find module '@marp-team/marp-cli'**
 
-Solution:
+解決策：
 ```bash
 npm install
 ```
 
-### Build Issues
+### ビルドの問題
 
-**Error: PDF/PPTX generation fails**
+**エラー：PDF/PPTX生成が失敗**
 
-Solutions:
-- Ensure `--allow-local-files` is in build script (already configured)
-- Check that assets use relative paths: `assets/image.png` not `/assets/image.png`
-- Verify Chromium/Chrome is installed
-- Check file paths for typos
+解決策：
+- ビルドスクリプトに`--allow-local-files`が含まれていることを確認（既に設定済み）
+- アセットが相対パスを使用していることを確認：`assets/image.png`（`/assets/image.png`ではなく）
+- Chromium/Chromeがインストールされていることを確認
+- ファイルパスにタイプミスがないか確認
 
-**Images not showing in PDF/PPTX**
+**画像がPDF/PPTXに表示されない**
 
-Solutions:
-- Use relative paths from deck.md location
-- Verify image file exists at specified path
-- Ensure `--allow-local-files` flag is present (already in scripts)
-- Try absolute paths as last resort
+解決策：
+- deck.mdの場所からの相対パスを使用
+- 指定されたパスに画像ファイルが存在することを確認
+- `--allow-local-files`フラグが存在することを確認（既にスクリプトに含まれています）
+- 最後の手段として絶対パスを試す
 
-### Theme Issues
+### テーマの問題
 
-**Theme not applying**
+**テーマが適用されない**
 
-Solutions:
-- Check theme name matches `/* @theme name */` in CSS file
-- Verify frontmatter has correct `theme: name`
-- Ensure `--theme-set ./shared/themes` is in npm script (already configured)
-- Clear browser cache if using preview
+解決策：
+- テーマ名がCSSファイルの`/* @theme name */`と一致することを確認
+- フロントマターに正しい`theme: name`があることを確認
+- npmスクリプトに`--theme-set ./shared/themes`があることを確認（既に設定済み）
+- プレビューを使用している場合はブラウザキャッシュをクリア
 
-**Custom styles not working**
+**カスタムスタイルが機能しない**
 
-Solutions:
-- CSS must be in `shared/themes/` directory
-- Theme file must start with `/* @theme themename */`
-- Check CSS syntax for errors
-- Restart preview after CSS changes
+解決策：
+- CSSは`shared/themes/`ディレクトリにある必要があります
+- テーマファイルは`/* @theme themename */`で始まる必要があります
+- CSSの構文エラーを確認
+- CSS変更後にプレビューを再起動
 
-### Editable PPTX Issues
+### 編集可能なPPTXの問題
 
-**Error: "LibreOffice is required for editable PPTX"**
+**エラー：「LibreOffice is required for editable PPTX」**
 
-Solutions:
-- Install LibreOffice Impress (see [Setup](#libreoffice-impress-setup))
-- Verify: `soffice --version`
-- Ensure LibreOffice is in system PATH
+解決策：
+- LibreOffice Impressをインストール（[セットアップ](#libreoffice-impressのセットアップ)参照）
+- 確認：`soffice --version`
+- LibreOfficeがシステムPATHにあることを確認
 
-**Error: "Cannot find LibreOffice" (even though installed)**
+**エラー：「Cannot find LibreOffice」（インストール済みにもかかわらず）**
 
-Solutions:
-- **Linux:** Create symlink: `sudo ln -s /usr/bin/libreoffice /usr/bin/soffice`
-- **macOS:** Add to PATH: `export PATH="/Applications/LibreOffice.app/Contents/MacOS:$PATH"`
-- **Windows:** Add to system PATH:
-  1. Search "Environment Variables" in Start menu
-  2. Edit "Path" variable
-  3. Add `C:\Program Files\LibreOffice\program\`
+解決策：
+- **Linux：** シンボリックリンクを作成：`sudo ln -s /usr/bin/libreoffice /usr/bin/soffice`
+- **macOS：** PATHに追加：`export PATH="/Applications/LibreOffice.app/Contents/MacOS:$PATH"`
+- **Windows：** システムPATHに追加：
+  1. スタートメニューで「環境変数」を検索
+  2. 「Path」変数を編集
+  3. `C:\Program Files\LibreOffice\program\`を追加
 
-**Editable PPTX has layout/formatting issues**
+**編集可能なPPTXにレイアウト/フォーマットの問題がある**
 
-Expected behavior:
-- Editable PPTX prioritizes editability over fidelity
-- Complex CSS may not translate perfectly
-- Use standard `--pptx` for better layout preservation
-- Editable PPTX best for heavy PowerPoint modifications
+予想される動作：
+- 編集可能なPPTXは忠実度よりも編集可能性を優先
+- 複雑なCSSは完璧に変換されない場合があります
+- より良いレイアウト保持には標準`--pptx`を使用
+- 編集可能なPPTXはPowerPointでの大幅な変更に最適
 
-**LibreOffice process hangs during conversion**
+**LibreOfficeプロセスが変換中にハング**
 
-Solutions:
-- Kill stuck processes:
-  - Linux/macOS: `pkill soffice`
-  - Windows: Task Manager → End LibreOffice processes
-- Try again (occasional timing issue)
-- Ensure LibreOffice not already running
+解決策：
+- スタックしたプロセスを終了：
+  - Linux/macOS：`pkill soffice`
+  - Windows：タスクマネージャー → LibreOfficeプロセスを終了
+- 再試行（時折のタイミングの問題）
+- LibreOfficeが既に実行されていないことを確認
 
-### Preview Issues
+### プレビューの問題
 
-**Preview server not auto-reloading**
+**プレビューサーバーが自動リロードしない**
 
-Solutions:
-- Save file to trigger reload
-- Check terminal for error messages
-- Restart: `npm run preview decks/your-deck/deck.md`
-- Clear browser cache
-- Try hard refresh (Ctrl+Shift+R or Cmd+Shift+R)
+解決策：
+- ファイルを保存してリロードをトリガー
+- ターミナルでエラーメッセージを確認
+- 再起動：`npm run preview decks/your-deck/deck.md`
+- ブラウザキャッシュをクリア
+- ハードリフレッシュを試す（Ctrl+Shift+RまたはCmd+Shift+R）
 
-**Preview shows blank page**
+**プレビューが空白ページを表示**
 
-Solutions:
-- Check terminal for errors
-- Verify Markdown syntax (missing frontmatter?)
-- Ensure file has `.md` extension
-- Try building to HTML to see detailed errors
+解決策：
+- ターミナルでエラーを確認
+- Markdown構文を確認（フロントマターが欠けていませんか？）
+- ファイルに`.md`拡張子があることを確認
+- 詳細なエラーを確認するためHTMLへのビルドを試す
 
-### Platform-Specific Issues
+### プラットフォーム固有の問題
 
-**Windows: Path issues in commands**
+**Windows：コマンドのパスの問題**
 
-Solutions:
-- npm scripts use forward slashes (works on Windows)
-- Use forward slashes in your commands too
-- Avoid backslashes: `decks/myproject/deck.md` not `decks\myproject\deck.md`
+解決策：
+- npmスクリプトはフォワードスラッシュを使用（Windowsでも動作）
+- コマンドでもフォワードスラッシュを使用
+- バックスラッシュを避ける：`decks/myproject/deck.md`（`decks\myproject\deck.md`ではなく）
 
-**Linux: Permission denied**
+**Linux：Permission denied**
 
-Solutions:
-- Don't use `sudo` with npm commands
-- Fix npm permissions: https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally
+解決策：
+- npmコマンドで`sudo`を使用しない
+- npm権限を修正：https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally
 
-## Advanced Configuration
+## 高度な設定
 
-### Custom Marp Configuration
+### カスタムMarp設定
 
-Create `.marprc.yml` in root for global settings:
+グローバル設定のためにルートに`.marprc.yml`を作成：
 
 ```yaml
 options:
@@ -435,83 +441,83 @@ options:
   themeSet: ./shared/themes
 ```
 
-### PDF Export Options
+### PDFエクスポートオプション
 
-Add quality settings:
+品質設定を追加：
 
 ```bash
 npm run build -- --pdf --pdf-options.preset=default decks/mydeck/deck.md
 ```
 
-Available presets: `default`, `screen`, `ebook`, `printer`, `prepress`
+利用可能なプリセット：`default`、`screen`、`ebook`、`printer`、`prepress`
 
-### Custom Slide Sizes
+### カスタムスライドサイズ
 
-In frontmatter:
+フロントマターで：
 
 ```yaml
-# Standard ratios
+# 標準の縦横比
 size: 4:3
 size: 16:9
 
-# Custom dimensions (pixels)
+# カスタム寸法（ピクセル）
 size: 1920x1080
 ```
 
-### HTML with Local Assets
+### ローカルアセット付きHTML
 
-Already configured in scripts with `--html --allow-local-files`. This allows:
-- Local image references
-- Custom fonts
-- Embedded assets
+既にスクリプトで`--html --allow-local-files`として設定されています。これにより以下が可能：
+- ローカル画像参照
+- カスタムフォント
+- 埋め込みアセット
 
-### Background Images
+### 背景画像
 
-Per-slide backgrounds:
+スライドごとの背景：
 
 ```markdown
 <!-- _backgroundImage: "url('assets/background.jpg')" -->
 
-# Slide with Background
+# 背景付きスライド
 ```
 
-## Directory Structure
+## ディレクトリ構造
 
 ```
 marp-workspace/
-├── .gitignore                   # Git ignore rules
+├── .gitignore                   # Git除外ルール
 ├── .vscode/
-│   └── settings.json           # VS Code Marp settings
-├── package.json                # npm scripts and dependencies
-├── README.md                   # This file
-├── CLAUDE.md                   # AI assistant instructions
-├── decks/                      # All presentation decks
-│   ├── 000_template/           # Reusable template
-│   │   ├── deck.md            # Template with examples
-│   │   └── assets/            # Template assets
-│   └── 2026-01_sample/        # Sample deck
-│       ├── deck.md            # Sample presentation
-│       └── assets/            # Sample assets
-├── shared/                     # Shared resources
-│   ├── themes/                # Custom themes
-│   │   └── company.css        # Company theme
-│   └── assets/                # Shared assets (logos, etc.)
-└── dist/                       # Build outputs (gitignored)
-    ├── html/                  # HTML exports
-    ├── pdf/                   # PDF exports
-    ├── pptx/                  # PowerPoint exports
-    └── pptx-editable/         # Editable PPTX exports
+│   └── settings.json           # VS Code Marp設定
+├── package.json                # npmスクリプトと依存関係
+├── README.md                   # このファイル
+├── CLAUDE.md                   # AIアシスタント指示
+├── decks/                      # 全プレゼンテーションデッキ
+│   ├── 000_template/           # 再利用可能なテンプレート
+│   │   ├── deck.md            # 例付きテンプレート
+│   │   └── assets/            # テンプレートアセット
+│   └── 2026-01_sample/        # サンプルデッキ
+│       ├── deck.md            # サンプルプレゼンテーション
+│       └── assets/            # サンプルアセット
+├── shared/                     # 共有リソース
+│   ├── themes/                # カスタムテーマ
+│   │   └── company.css        # 企業テーマ
+│   └── assets/                # 共有アセット（ロゴなど）
+└── dist/                       # ビルド出力（gitignoreされています）
+    ├── html/                  # HTMLエクスポート
+    ├── pdf/                   # PDFエクスポート
+    ├── pptx/                  # PowerPointエクスポート
+    └── pptx-editable/         # 編集可能なPPTXエクスポート
 ```
 
-## Resources
+## リソース
 
-- **Marp Official Site:** [marp.app](https://marp.app/)
-- **Marp CLI Documentation:** [github.com/marp-team/marp-cli](https://github.com/marp-team/marp-cli)
-- **Marpit Markdown:** [marpit.marp.app/markdown](https://marpit.marp.app/markdown)
-- **Theme CSS Guide:** [marpit.marp.app/theme-css](https://marpit.marp.app/theme-css)
-- **Marp for VS Code:** [marketplace.visualstudio.com](https://marketplace.visualstudio.com/items?itemName=marp-team.marp-vscode)
-- **LibreOffice Download:** [libreoffice.org/download](https://www.libreoffice.org/download/download/)
+- **Marp公式サイト：** [marp.app](https://marp.app/)
+- **Marp CLIドキュメント：** [github.com/marp-team/marp-cli](https://github.com/marp-team/marp-cli)
+- **Marpit Markdown：** [marpit.marp.app/markdown](https://marpit.marp.app/markdown)
+- **テーマCSSガイド：** [marpit.marp.app/theme-css](https://marpit.marp.app/theme-css)
+- **Marp for VS Code：** [marketplace.visualstudio.com](https://marketplace.visualstudio.com/items?itemName=marp-team.marp-vscode)
+- **LibreOfficeダウンロード：** [libreoffice.org/download](https://www.libreoffice.org/download/download/)
 
-## License
+## ライセンス
 
-This workspace is provided as-is for creating presentations. Individual presentations created with this workspace are owned by their respective authors.
+このワークスペースはプレゼンテーション作成のためにそのまま提供されます。このワークスペースで作成された個々のプレゼンテーションは、それぞれの作成者が所有します。
