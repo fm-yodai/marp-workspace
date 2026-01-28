@@ -1,0 +1,5 @@
+# Marp configuration for this deck
+themeSet:
+  - ../../shared/themes
+  - ./themes
+allowLocalFiles: true

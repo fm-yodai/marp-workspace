@@ -1,0 +1,15 @@
+{
+  "name": "@marp-workspace/2026-02_my-project",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "marp -w -p deck.md",
+    "preview": "marp -w -p deck.md",
+    "serve": "marp -s deck.md",
+    "build": "marp deck.md -o dist/deck.html",
+    "build:pdf": "marp --pdf deck.md -o dist/deck.pdf",
+    "build:pptx": "marp --pptx deck.md -o dist/deck.pptx",
+    "build:editable": "marp --pptx --allow-local-files deck.md -o dist/deck-editable.pptx",
+    "build:all": "npm run build && npm run build:pdf && npm run build:pptx && npm run build:editable"
+  }
+}
