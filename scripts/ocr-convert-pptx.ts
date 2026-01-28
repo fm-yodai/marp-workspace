@@ -5,13 +5,14 @@
  * Converts PowerPoint presentations to Marp slide decks using Mistral Vision/OCR API
  */
 import { Command } from 'commander';
-import { spawn } from 'child_process';
 import ora from 'ora';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { defaultConfig, validateConfig, ConversionStrategy, OCRConfig } from './utils/ocr/config.js';
 import { generateMarpDeck, ProcessedSlide } from './utils/ocr/marp-generator.js';
+import { getTempDir, getPlatform, getLibreOfficeInstallInstructions, getPythonInstallInstructions } from './utils/platform.js';
+import { runPythonWorker as runPythonScript } from './utils/python-worker.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,43 +36,27 @@ async function runPythonWorker(
   args: string[],
   spinner: ora.Ora
 ): Promise<any> {
-  return new Promise((resolve, reject) => {
-    const scriptPath = path.join(__dirname, 'utils', 'ocr', scriptName);
-    const python = spawn('python3', [scriptPath, ...args]);
+  const scriptPath = path.join(__dirname, 'utils', 'ocr', scriptName);
 
-    let stdout = '';
-    let stderr = '';
-
-    python.stdout.on('data', (data) => {
-      stdout += data.toString();
-    });
-
-    python.stderr.on('data', (data) => {
-      stderr += data.toString();
-    });
-
-    python.on('close', (code) => {
-      if (code !== 0) {
-        reject(new Error(`Python worker failed: ${stderr || stdout}`));
-        return;
-      }
-
-      try {
-        const result = JSON.parse(stdout);
-        if (!result.success) {
-          reject(new Error(result.message || 'Unknown error'));
-          return;
-        }
-        resolve(result);
-      } catch (error) {
-        reject(new Error(`Failed to parse worker output: ${stdout}`));
-      }
-    });
-
-    python.on('error', (error) => {
-      reject(new Error(`Failed to spawn Python worker: ${error.message}`));
-    });
+  const result = await runPythonScript(scriptPath, args, {
+    timeout: 300000, // 5 minutes
+    verbose: false,
   });
+
+  if (!result.success) {
+    const error = result.error || 'Unknown error';
+
+    // Provide platform-specific help for Python not found
+    if (error.includes('Python executable not found')) {
+      throw new Error(
+        `Python not found. Please install Python:\n\n${getPythonInstallInstructions()}`
+      );
+    }
+
+    throw new Error(error);
+  }
+
+  return result.data;
 }
 
 /**
@@ -185,7 +170,7 @@ async function convertPPTX(
 
     // Create temporary directory for images
     const tempDir = path.join(
-      '/tmp',
+      getTempDir(),
       `marp-ocr-${Date.now()}-${Math.random().toString(36).substring(7)}`
     );
     await fs.mkdir(tempDir, { recursive: true });
@@ -270,8 +255,9 @@ async function convertPPTX(
           break;
         case 'image-conversion':
           console.error('\nTroubleshooting:');
-          console.error('  - Ensure LibreOffice is installed: sudo apt-get install libreoffice');
-          console.error('  - Check that the PPTX file is not corrupted');
+          console.error('  - Ensure LibreOffice is installed:\n');
+          console.error(getLibreOfficeInstallInstructions());
+          console.error('\n  - Check that the PPTX file is not corrupted');
           console.error('  - Try opening the file in PowerPoint/LibreOffice first');
           break;
         case 'ocr':

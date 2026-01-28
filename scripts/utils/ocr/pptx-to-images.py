@@ -7,8 +7,54 @@ import subprocess
 import tempfile
 import json
 import sys
+import platform
+import shutil
 from pathlib import Path
 from pdf2image import convert_from_path
+
+
+def find_libreoffice_command():
+    """
+    Find LibreOffice executable on the system.
+    Returns the command name or path, or raises RuntimeError if not found.
+    """
+    system = platform.system()
+
+    # Define candidates based on platform
+    if system == 'Windows':
+        candidates = [
+            'soffice.exe',
+            'soffice',
+            r'C:\Program Files\LibreOffice\program\soffice.exe',
+            r'C:\Program Files (x86)\LibreOffice\program\soffice.exe',
+        ]
+    elif system == 'Darwin':  # macOS
+        candidates = [
+            '/Applications/LibreOffice.app/Contents/MacOS/soffice',
+            'libreoffice',
+            'soffice',
+        ]
+    else:  # Linux and others
+        candidates = [
+            'libreoffice',
+            'soffice',
+        ]
+
+    # Try each candidate
+    for candidate in candidates:
+        # Check if it's a full path
+        if Path(candidate).exists():
+            return candidate
+
+        # Check if it's in PATH
+        if shutil.which(candidate):
+            return candidate
+
+    # Not found
+    raise RuntimeError(
+        f"LibreOffice not found. Please install LibreOffice for {system}.\n"
+        "Visit https://www.libreoffice.org/download/"
+    )
 
 
 def convert_pptx_to_images(pptx_path: str, output_dir: str, dpi: int = 300):
@@ -37,20 +83,26 @@ def convert_pptx_to_images(pptx_path: str, output_dir: str, dpi: int = 300):
             temp_pdf = Path(temp_dir) / "presentation.pdf"
 
             # Step 1: Convert PPTX to PDF using LibreOffice
+            # Find LibreOffice executable
+            libreoffice_exe = find_libreoffice_command()
+
             # Use headless mode with no splash screen
             libreoffice_cmd = [
-                "libreoffice",
+                libreoffice_exe,
                 "--headless",
                 "--convert-to", "pdf",
                 "--outdir", temp_dir,
                 str(pptx_path_obj)
             ]
 
+            # Windows may need longer timeout for first run
+            timeout = 180 if platform.system() == 'Windows' else 120
+
             result = subprocess.run(
                 libreoffice_cmd,
                 capture_output=True,
                 text=True,
-                timeout=120  # 2 minute timeout
+                timeout=timeout
             )
 
             if result.returncode != 0:
@@ -101,10 +153,11 @@ def convert_pptx_to_images(pptx_path: str, output_dir: str, dpi: int = 300):
         return 1
 
     except subprocess.TimeoutExpired:
+        timeout_msg = "LibreOffice conversion timed out (3 minutes on Windows, 2 minutes on other systems). The file may be too large or complex."
         error_result = {
             "success": False,
             "error": "TimeoutError",
-            "message": "LibreOffice conversion timed out after 2 minutes"
+            "message": timeout_msg
         }
         print(json.dumps(error_result), file=sys.stderr)
         return 1

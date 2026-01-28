@@ -10,21 +10,24 @@
     "create-deck": "tsx scripts/create-deck.ts",
     "build:deck": "tsx scripts/build-deck.ts",
     "ocr:convert": "tsx scripts/ocr-convert-pptx.ts",
-    "ocr:install": "pip3 install -r scripts/utils/ocr/requirements.txt",
-    "ocr:verify": "bash scripts/verify-ocr-setup.sh",
-    "clean": "rm -rf dist node_modules",
+    "ocr:install": "node scripts/utils/install-python-deps.js",
+    "ocr:verify": "tsx scripts/verify-ocr-setup.ts",
+    "clean": "rimraf dist node_modules",
+    "test:cross-platform": "tsx scripts/test-cross-platform.ts",
     "prepare": "node -e \"['dist/html','dist/pdf','dist/pptx','dist/pptx-editable'].forEach(d=>require('fs').mkdirSync(d,{recursive:true}))\""
   },
   "devDependencies": {
     "@marp-team/marp-cli": "^4.0.0",
-    "tsx": "^4.7.0",
-    "typescript": "^5.3.0",
-    "@types/node": "^20.0.0",
-    "inquirer": "^9.2.0",
     "@types/inquirer": "^9.0.0",
-    "gray-matter": "^4.0.3",
+    "@types/node": "^20.0.0",
     "commander": "^11.0.0",
-    "ora": "^8.0.0"
+    "cross-env": "^7.0.3",
+    "gray-matter": "^4.0.3",
+    "inquirer": "^9.2.0",
+    "ora": "^8.0.0",
+    "rimraf": "^5.0.10",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0"
   },
   "engines": {
     "node": ">=18.0.0"

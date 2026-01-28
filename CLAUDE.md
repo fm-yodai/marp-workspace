@@ -198,7 +198,10 @@ npm run ocr:convert -- slides.pptx -o 2026-04_custom --dpi 600 --theme company
 
 - **Python 3.8+**: For OCR processing
 - **LibreOffice**: For PPTX to PDF conversion
+- **poppler-utils**: For PDF to image conversion
 - **Mistral API Key**: For OCR processing (~$2 per 1,000 pages)
+
+**Platform Support**: This workspace is fully cross-platform and works on Windows, macOS, and Linux. The tools automatically detect and use the correct executables for your platform.
 
 ### Documentation
 
@@ -231,6 +234,146 @@ Comprehensive OCR conversion documentation is available in `docs/ocr-conversion/
    - Edit deck.md as needed
    - Update theme and branding
    - Add speaker notes in context/
+
+## Platform-Specific Setup
+
+### Windows Setup
+
+The workspace fully supports Windows (Command Prompt, PowerShell, and Git Bash). All tools automatically detect and use Windows-compatible commands.
+
+#### System Dependencies
+
+1. **Python 3.8+**
+   - Download installer from https://www.python.org/downloads/
+   - **Important**: Check "Add Python to PATH" during installation
+   - Or use chocolatey: `choco install python`
+   - Or use scoop: `scoop install python`
+   - Verify: `python --version` or `py --version`
+
+2. **LibreOffice**
+   - Download from https://www.libreoffice.org/download/
+   - Run the installer (MSI)
+   - Ensure it's in PATH or tools will auto-detect common install locations
+   - Or use chocolatey: `choco install libreoffice`
+   - Verify: `soffice --version`
+
+3. **poppler-utils** (for PDF processing)
+   - Download from https://github.com/oschwartz10612/poppler-windows/releases/
+   - Extract to a folder (e.g., `C:\Program Files\poppler`)
+   - Add the `bin` folder to your PATH:
+     1. Search "Environment Variables" in Start Menu
+     2. Click "Edit the system environment variables"
+     3. Click "Environment Variables" button
+     4. Under "User variables", select "Path" and click "Edit"
+     5. Click "New" and add the path to poppler's `bin` folder
+   - Or use chocolatey: `choco install poppler`
+   - Or use scoop: `scoop install poppler`
+   - Verify: `pdftoppm -v`
+
+#### Installation Steps
+
+```cmd
+# 1. Clone and install Node dependencies
+git clone <repository-url>
+cd marp-workspace
+npm install
+
+# 2. Install Python dependencies
+npm run ocr:install
+
+# 3. Set Mistral API key
+# For Command Prompt:
+set MISTRAL_API_KEY=your-api-key-here
+
+# For PowerShell:
+$env:MISTRAL_API_KEY="your-api-key-here"
+
+# For permanent setting:
+# Search "Environment Variables" in Start Menu → Add MISTRAL_API_KEY
+
+# 4. Verify setup
+npm run ocr:verify
+```
+
+#### Common Windows Issues
+
+**"python3 not found"**
+- Windows typically installs Python as `python` or `py`, not `python3`
+- The tools automatically detect the correct command (no action needed)
+
+**"pip3 not found"**
+- Windows uses `pip` or `py -m pip` instead of `pip3`
+- The tools automatically detect the correct command (no action needed)
+
+**LibreOffice conversion hangs**
+- First run may take 2-3 minutes to initialize
+- Subsequent runs are faster
+- Make sure no other LibreOffice processes are running
+
+**Path contains spaces**
+- Use quotes around paths: `npm run ocr:convert -- "C:\My Documents\presentation.pptx" -o output`
+- Or use forward slashes: `npm run ocr:convert -- C:/My Documents/presentation.pptx -o output`
+
+**Permission errors**
+- Run terminal as Administrator if you encounter permission issues
+- Check that antivirus isn't blocking Python or LibreOffice
+
+#### Environment Variables (Permanent)
+
+To permanently set the Mistral API key:
+
+1. Search "Environment Variables" in Start Menu
+2. Click "Edit the system environment variables"
+3. Click "Environment Variables" button
+4. Under "User variables", click "New"
+5. Variable name: `MISTRAL_API_KEY`
+6. Variable value: your API key
+7. Click OK on all dialogs
+8. Restart your terminal
+
+### macOS Setup
+
+```bash
+# Install dependencies using Homebrew
+brew install python3 libreoffice poppler
+
+# Install Node dependencies
+npm install
+
+# Install Python dependencies
+npm run ocr:install
+
+# Set API key (add to ~/.zshrc or ~/.bashrc for persistence)
+export MISTRAL_API_KEY="your-api-key-here"
+
+# Verify setup
+npm run ocr:verify
+```
+
+### Linux Setup
+
+```bash
+# Ubuntu/Debian
+sudo apt-get install python3 python3-pip libreoffice poppler-utils
+
+# Fedora/RHEL
+sudo yum install python3 python3-pip libreoffice poppler-utils
+
+# Arch
+sudo pacman -S python python-pip libreoffice poppler
+
+# Install Node dependencies
+npm install
+
+# Install Python dependencies
+npm run ocr:install
+
+# Set API key (add to ~/.bashrc for persistence)
+export MISTRAL_API_KEY="your-api-key-here"
+
+# Verify setup
+npm run ocr:verify
+```
 
 ## Creating New Decks
 

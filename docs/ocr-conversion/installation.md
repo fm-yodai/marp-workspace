@@ -2,60 +2,193 @@
 
 Complete setup instructions for the OCR conversion tool.
 
+**Cross-Platform Support**: This tool works on Windows, macOS, and Linux. All commands and scripts automatically detect your platform and use the appropriate executables.
+
 ## Prerequisites
 
 - **Node.js**: Version 18 or higher
 - **Python 3**: Version 3.8 or higher
-- **pip3**: Python package manager
+- **pip**: Python package manager
 - **System tools**: LibreOffice and poppler-utils
 
 ## Step 1: System Dependencies
+
+Choose the instructions for your operating system:
+
+### Windows
+
+#### Python 3.8+
+
+1. **Download Python installer**:
+   - Visit https://www.python.org/downloads/
+   - Download the latest Python 3.8+ installer
+   - Run the installer
+   - **IMPORTANT**: Check "Add Python to PATH" during installation
+
+2. **Or use package manager**:
+   ```cmd
+   # Using chocolatey
+   choco install python
+
+   # Using scoop
+   scoop install python
+   ```
+
+3. **Verify installation**:
+   ```cmd
+   python --version
+   # or
+   py --version
+   # Expected: Python 3.8.x or higher
+   ```
+
+#### LibreOffice
+
+1. **Download LibreOffice installer**:
+   - Visit https://www.libreoffice.org/download/
+   - Download the Windows installer (MSI)
+   - Run the installer
+
+2. **Or use package manager**:
+   ```cmd
+   choco install libreoffice
+   ```
+
+3. **Verify installation**:
+   ```cmd
+   # Should work if in PATH
+   soffice --version
+
+   # If not in PATH, the tool will auto-detect from:
+   # C:\Program Files\LibreOffice\program\soffice.exe
+   # C:\Program Files (x86)\LibreOffice\program\soffice.exe
+   ```
+
+#### poppler-utils
+
+1. **Download poppler-windows**:
+   - Visit https://github.com/oschwartz10612/poppler-windows/releases/
+   - Download the latest release ZIP
+   - Extract to a folder (e.g., `C:\Program Files\poppler`)
+
+2. **Add to PATH**:
+   - Search "Environment Variables" in Start Menu
+   - Click "Edit the system environment variables"
+   - Click "Environment Variables" button
+   - Under "User variables", select "Path" and click "Edit"
+   - Click "New" and add the path to poppler's `bin` folder
+   - Click OK on all dialogs
+
+3. **Or use package manager**:
+   ```cmd
+   # Using chocolatey
+   choco install poppler
+
+   # Using scoop
+   scoop install poppler
+   ```
+
+4. **Verify installation**:
+   ```cmd
+   pdftoppm -v
+   # Expected: pdftoppm version 22.x.x or higher
+   ```
+
+### macOS
+
+```bash
+# Install all dependencies with Homebrew
+brew install python3 libreoffice poppler
+```
+
+**Verify installation**:
+
+```bash
+# Check Python
+python3 --version
+# Expected: Python 3.8.x or higher
+
+# Check LibreOffice
+soffice --version
+# or
+/Applications/LibreOffice.app/Contents/MacOS/soffice --version
+# Expected: LibreOffice 7.x.x or higher
+
+# Check poppler
+pdftoppm -v
+# Expected: pdftoppm version 22.x.x or higher
+```
 
 ### Ubuntu/Debian/WSL
 
 ```bash
 sudo apt-get update
-sudo apt-get install libreoffice poppler-utils python3-pip
+sudo apt-get install python3 python3-pip libreoffice poppler-utils
 ```
 
-### macOS
+**Verify installation**:
 
 ```bash
-brew install libreoffice poppler python3
-```
+# Check Python
+python3 --version
+# Expected: Python 3.8.x or higher
 
-### Verify Installation
-
-```bash
 # Check LibreOffice
 libreoffice --version
 # Expected: LibreOffice 7.x.x or higher
 
-# Check poppler (pdftoppm)
+# Check poppler
 pdftoppm -v
 # Expected: pdftoppm version 22.x.x or higher
-
-# Check Python
-python3 --version
-# Expected: Python 3.8.x or higher
 ```
+
+### Fedora/RHEL
+
+```bash
+sudo yum install python3 python3-pip libreoffice poppler-utils
+```
+
+### Arch Linux
+
+```bash
+sudo pacman -S python python-pip libreoffice poppler
+```
+
+## Quick Setup Verification
+
+After installing system dependencies, run the verification script:
+
+```bash
+npm run ocr:verify
+```
+
+This will check all dependencies and provide platform-specific installation instructions for any missing components.
 
 ## Step 2: Python Dependencies
 
-Install required Python packages:
+Install required Python packages (works on all platforms):
 
 ```bash
 npm run ocr:install
 ```
 
-This is equivalent to:
-
-```bash
-pip3 install -r scripts/utils/ocr/requirements.txt
-```
+The script automatically detects the correct pip command for your platform:
+- Windows: Uses `pip`, `pip3`, or `py -m pip`
+- macOS/Linux: Uses `pip3`, `pip`, or `python3 -m pip`
 
 ### Verify Python Installation
 
+**Windows (Command Prompt)**:
+```cmd
+python -c "import mistralai; import PIL; import pdf2image; print('All packages installed!')"
+```
+
+**Windows (PowerShell)**:
+```powershell
+python -c "import mistralai; import PIL; import pdf2image; print('All packages installed!')"
+```
+
+**macOS/Linux**:
 ```bash
 python3 -c "import mistralai; import PIL; import pdf2image; print('All packages installed!')"
 ```
@@ -73,31 +206,54 @@ If successful, you should see: `All packages installed!`
 
 ### Set Environment Variable
 
-**Option A: Export in terminal (temporary)**
+#### Windows
 
+**Option A: Command Prompt (temporary, current session only)**
+```cmd
+set MISTRAL_API_KEY=your_api_key_here
+```
+
+**Option B: PowerShell (temporary, current session only)**
+```powershell
+$env:MISTRAL_API_KEY="your_api_key_here"
+```
+
+**Option C: Permanent (recommended for Windows)**
+1. Search "Environment Variables" in Start Menu
+2. Click "Edit the system environment variables"
+3. Click "Environment Variables" button
+4. Under "User variables", click "New"
+5. Variable name: `MISTRAL_API_KEY`
+6. Variable value: your API key
+7. Click OK on all dialogs
+8. **Restart your terminal** for changes to take effect
+
+#### macOS / Linux
+
+**Option A: Export in terminal (temporary)**
 ```bash
 export MISTRAL_API_KEY="your_api_key_here"
 ```
 
 **Option B: Add to shell profile (permanent)**
-
 ```bash
 # For bash
 echo 'export MISTRAL_API_KEY="your_api_key_here"' >> ~/.bashrc
 source ~/.bashrc
 
-# For zsh
+# For zsh (default on macOS)
 echo 'export MISTRAL_API_KEY="your_api_key_here"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-**Option C: Use .env file**
+**Option C: Use .env file (all platforms)**
 
 Create `.env` in workspace root:
-
 ```bash
 MISTRAL_API_KEY=your_api_key_here
 ```
+
+**Note**: The .env file is gitignored to prevent accidental commits of your API key.
 
 ## Step 4: Node.js Dependencies
 
@@ -114,12 +270,28 @@ This installs:
 
 ## Step 5: Verification
 
-Test the installation with a sample conversion:
+Test the installation with the verification script:
 
 ```bash
-# Verify command is available
-npm run ocr:convert -- --help
+# Run comprehensive setup verification
+npm run ocr:verify
+```
 
+This will check:
+- ✅ Node.js dependencies
+- ✅ Python installation and version
+- ✅ pip availability
+- ✅ LibreOffice installation
+- ✅ poppler-utils installation
+- ✅ Python packages (mistralai, Pillow, pdf2image)
+- ✅ Mistral API key configuration
+
+If any checks fail, the script provides platform-specific installation instructions.
+
+You can also verify the conversion command is available:
+
+```bash
+npm run ocr:convert -- --help
 # Should display usage information
 ```
 
