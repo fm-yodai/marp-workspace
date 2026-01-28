@@ -1,19 +1,10 @@
 {
+  "chat.useAgentSkills": true,
+  "files.associations": {
+    "*.md": "markdown"
+  },
   "markdown.marp.enableHtml": true,
   "markdown.marp.themes": [
     "./shared/themes/company.css"
-  ],
-  "markdown.marp.exportType": "html",
-  "markdown.marp.chromePath": "",
-  "[markdown]": {
-    "editor.quickSuggestions": {
-      "other": true,
-      "comments": false,
-      "strings": true
-    },
-    "editor.wordWrap": "on"
-  },
-  "files.associations": {
-    "**/decks/**/*.md": "markdown"
-  }
+  ]
 }

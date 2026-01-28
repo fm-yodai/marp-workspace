@@ -4,6 +4,17 @@ node_modules/
 # Build outputs
 dist/
 
+# Deck-specific build outputs (no node_modules as they're in workspace root)
+decks/*/dist/
+decks/*/.marprc.local
+
+# TypeScript script outputs
+dist-scripts/
+
+# Marp generated HTML files
+**/*.html
+*.html
+
 # OS files
 .DS_Store
 Thumbs.db
