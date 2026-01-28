@@ -4,9 +4,13 @@
 
 ## 機能
 
+- **npm Workspaces アーキテクチャ** - 各デッキが独立したビルドスクリプトを持ちながら、node_modulesは共有してディスク容量を節約（~177MBのみ）
+- **OCR変換ツール** - Mistral Vision/OCR APIを使用してPowerPointプレゼンテーションをMarp形式に変換
+- **デッキジェネレーター** - インタラクティブなTUIで新規デッキを簡単作成、テンプレート継承にも対応
 - **テンプレートシステム** - 主要機能のサンプルを含む再利用可能なテンプレートデッキ
 - **カスタムテーマ** - CSS変数による簡単なカスタマイズが可能なプロフェッショナルな企業テーマ
-- **自動ビルド** - HTML、PDF、PowerPointエクスポート用のnpmスクリプト
+- **Per-Deck 開発環境** - 各デッキ内で `npm run dev` によるプレビュー・ビルドが可能
+- **AIコンテキスト対応** - 各デッキに `context/` ディレクトリを配置してAIと協働
 - **整理された構造** - 各プレゼンテーションは独自のディレクトリとアセットを持つ
 - **ライブプレビュー** - 自動リロード付きウォッチモードで高速開発
 - **バージョン管理** - プレーンなMarkdownファイルはgitと完璧に連携
@@ -16,6 +20,39 @@
 **このワークスペースは初めてですか？** 詳細なステップバイステップのインストール手順については、[セットアップガイド（SETUP.md）](SETUP.md)をご覧ください。
 
 **既にセットアップ済みですか？** プレゼンテーション作成を始めるには、[使い方](#使い方)にジャンプしてください。
+
+## AIアシスタント対応
+
+このワークスペースは**Claude Code**と**GitHub Copilot**の両方に対応しています。
+
+### Claude Code
+
+- `.claude/skills/marp.md` にMarp専用スキルが含まれています
+- `/marp` コマンドでスキルを呼び出せます
+- スライド作成時に自動的にアクティベートされます
+
+### GitHub Copilot
+
+- `.github/skills/marp/SKILL.md` にAgent Skillが含まれています
+- **セットアップ**: VS Code設定で以下を有効にしてください：
+  ```json
+  {
+    "chat.useAgentSkills": true
+  }
+  ```
+  （このワークスペースでは`.vscode/settings.json`に既に設定済み）
+- スライド作成時にCopilotが自動的にこのスキルを使用します
+
+### 詳細ドキュメント
+
+包括的なMarpドキュメントは `docs/marp/` にあります：
+- **README.md**: 概要とナビゲーション
+- **01_marp_overview.md**: Marpエコシステム
+- **02_marp_cli_usage.md**: CLI完全リファレンス
+- **03_markdown_syntax.md**: Markdown拡張構文
+- **04_directives.md**: ディレクティブガイド
+- **05_theme_development.md**: テーマ開発
+- **06_practical_examples.md**: 実践的な例とテンプレート
 
 ## 前提条件
 
@@ -33,6 +70,7 @@
   - [LibreOffice Impressのセットアップ](#libreoffice-impressのセットアップ)セクションを参照
 - **VS Code**と[Marp for VS Code](https://marketplace.visualstudio.com/items?itemName=marp-team.marp-vscode)拡張機能
   - エディタ内でのプレビューとエクスポートが可能になります
+  - GitHub Copilot Agent Skillsを使用する場合に推奨
 
 ## セットアップ
 
@@ -94,84 +132,145 @@ where soffice
 "C:\Program Files\LibreOffice\program\soffice.exe" --version
 ```
 
+## npm Workspaces アーキテクチャ
+
+このワークスペースはnpm workspaces型アーキテクチャを採用しています：
+
+### メリット
+
+- ✅ **ディスク容量最小化**: node_modulesはワークスペースルートのみ（~177MB）、デッキ数に関係なく
+- ✅ **Per-Deck 開発**: 各デッキで `cd decks/my-deck && npm run dev` が可能
+- ✅ **一元管理**: ルートで一度 `npm install` すれば全デッキ対応
+- ✅ **バージョン統一**: 全デッキで同じMarp CLIバージョンを使用、一貫性確保
+- ✅ **npm標準機能**: 追加ツール不要
+
+### 仕組み
+
+- ワークスペースルートの `package.json` に `"workspaces": ["decks/*"]` を定義
+- 各デッキは独自の `package.json` を持つ（スクリプトのみ、依存関係なし）
+- 全デッキがワークスペースルートの `node_modules/` を共有参照
+
 ## 使い方
 
-### 単一デッキコマンド（主なワークフロー）
+### OCRでPowerPointを変換（新機能）
 
-| コマンド | 説明 |
-|---------|------|
-| `npm run preview <path>` | 自動リロード付きライブプレビュー |
-| `npm run build -- <format> <path>` | 指定フォーマットでビルド |
-
-**例：**
+既存のPowerPointプレゼンテーションをMarp形式に変換：
 
 ```bash
-# 自動リロード付きプレビュー
-npm run preview decks/2026-01_sample/deck.md
+# 1. Python依存関係のインストール
+npm run ocr:install
 
-# PDFにビルド
-npm run build -- --pdf decks/2026-01_sample/deck.md
+# 2. Mistral APIキーの設定
+export MISTRAL_API_KEY="your_api_key_here"
 
-# PowerPointにビルド
-npm run build -- --pptx decks/2026-01_sample/deck.md
+# 3. PPTXファイルの変換
+npm run ocr:convert -- presentation.pptx -o 2026-01_converted
 
-# 編集可能なPowerPointにビルド（LibreOfficeが必要）
-npm run build -- --pptx --pptx-editable decks/2026-01_sample/deck.md
-
-# カスタム出力でHTMLにビルド
-npm run build -- --html decks/2026-01_sample/deck.md -o dist/custom.html
+# 4. 結果のプレビュー
+cd decks/2026-01_converted
+npm run dev
 ```
 
-### 全デッキコマンド
+**変換戦略：**
+- `background`（デフォルト）- 完璧な視覚的忠実度、背景画像として保存
+- `hybrid` - 背景画像 + 編集可能なテキストオーバーレイ
+- `reconstruction` - 完全なMarkdown再構築、最大の編集可能性
 
-| コマンド | 説明 |
-|---------|------|
-| `npm run build:all:html` | 全デッキをHTMLにエクスポート |
-| `npm run build:all:pdf` | 全デッキをPDFにエクスポート |
-| `npm run build:all:pptx` | 全デッキをPowerPointにエクスポート |
-| `npm run build:all:pptx:editable` | 全デッキを編集可能なPPTXにエクスポート |
-| `npm run build:all` | 全デッキをHTML + PDF + PPTXにビルド |
+詳細については、[OCR変換ドキュメント](docs/ocr-conversion/)を参照してください。
 
-**例：**
+### 新規デッキの作成（推奨）
+
+インタラクティブなTUIでデッキを作成：
 
 ```bash
-# 全デッキをPDFにビルド
-npm run build:all:pdf
-
-# 全デッキを全標準フォーマットにビルド
-npm run build:all
+npm run create-deck
 ```
 
-### ユーティリティコマンド
+プロンプトで以下を選択：
+1. デッキ名（format: YYYY-MM_description）
+2. テンプレートソース（デフォルトまたは既存デッキ）
+3. プレゼンテーションタイトル
+4. package.jsonスクリプトの継承（既存デッキ選択時）
+
+作成後、すぐに開発開始可能。
+
+### Per-Deck 開発ワークフロー
+
+各デッキ内で独立して開発：
+
+```bash
+# デッキディレクトリに移動
+cd decks/2026-01_sample
+
+# プレビュー + 自動リロード
+npm run dev
+
+# ビルド
+npm run build        # HTML
+npm run build:pdf    # PDF
+npm run build:pptx   # PowerPoint
+npm run build:all    # 全形式
+```
+
+### ワークスペースルートからのビルド
+
+```bash
+# 特定デッキをビルド
+npm run build:deck -- 2026-01_sample          # 全形式
+npm run build:deck -- 2026-01_sample html     # HTML のみ
+npm run build:deck -- 2026-01_sample pdf      # PDF のみ
+npm run build:deck -- 2026-01_sample pptx     # PowerPoint のみ
+npm run build:deck -- 2026-01_sample editable # 編集可能PPTX
+```
+
+### 利用可能なコマンド（ワークスペースルート）
 
 | コマンド | 説明 |
 |---------|------|
+| `npm run create-deck` | 新規デッキを作成（TUI） |
+| `npm run ocr:convert -- <pptx> -o <name>` | PPTXをMarpに変換 |
+| `npm run ocr:install` | OCR用Python依存関係をインストール |
+| `npm run build:deck -- <name> [format]` | 特定デッキをビルド |
 | `npm run clean` | dist/とnode_modules/を削除 |
 
-## 新しいデッキの作成
+### 利用可能なコマンド（各デッキ内）
 
-### ステップバイステップワークフロー
+| コマンド | 説明 |
+|---------|------|
+| `npm run dev` | プレビュー + 自動リロード |
+| `npm run preview` | devのエイリアス |
+| `npm run serve` | HTTPサーバーでプレビュー |
+| `npm run build` | HTMLにビルド |
+| `npm run build:pdf` | PDFにビルド |
+| `npm run build:pptx` | PowerPointにビルド |
+| `npm run build:editable` | 編集可能なPowerPointにビルド |
+| `npm run build:all` | 全形式にビルド |
 
-```bash
-# 1. テンプレートディレクトリをコピー
-cp -r decks/000_template decks/2026-02_my-project
+## AIコンテキストディレクトリ
 
-# 2. デッキを編集
-# エディタでdecks/2026-02_my-project/deck.mdを開く
+各デッキには `context/` ディレクトリがあり、AIエージェント（Claude等）と協働する際のコンテキスト情報を格納できます：
 
-# 3. アセットを追加
-# 画像をdecks/2026-02_my-project/assets/に配置
-
-# 4. 自動リロード付きでプレビュー
-npm run preview decks/2026-02_my-project/deck.md
-
-# 5. お好みのフォーマットでビルド
-npm run build -- --pdf decks/2026-02_my-project/deck.md
+```
+decks/my-deck/
+├── context/
+│   ├── README.md       # このディレクトリの使い方
+│   ├── background.md   # プレゼンの背景・目的・聴衆
+│   └── notes.md        # アイデア・TODO・メモ
+├── deck.md
+└── assets/
 ```
 
-### 命名規則
+### 使い方
 
-フォーマット：`YYYY-MM_説明的な名前`
+1. **background.md** にプレゼンテーションの目的、対象聴衆、主要メッセージを記述
+2. **notes.md** にアイデア、TODO、参考資料を記録
+3. AIにスライド作成を依頼する際、このコンテキストを参照させる
+
+このディレクトリの内容はスライドには含まれませんが、AIがより適切なサポートを提供するための重要な情報源となります。
+
+## 命名規則
+
+デッキ名のフォーマット：`YYYY-MM_説明的な名前`
 
 **例：**
 - `2026-01_quarterly-review`
@@ -487,22 +586,67 @@ size: 1920x1080
 marp-workspace/
 ├── .gitignore                   # Git除外ルール
 ├── .vscode/
-│   └── settings.json           # VS Code Marp設定
-├── package.json                # npmスクリプトと依存関係
+│   └── settings.json           # VS Code設定（Copilot Agent Skills有効化済み）
+├── .claude/
+│   └── skills/
+│       └── marp.md             # Claude Code用Marpスキル
+├── .github/
+│   ├── skills/
+│   │   └── marp/
+│   │       └── SKILL.md        # GitHub Copilot Agent Skill
+│   └── copilot-instructions.md # Copilot グローバル指示
+├── package.json                # Workspaces定義と共有依存関係
+├── node_modules/               # 全デッキで共有（~177MB）
 ├── README.md                   # このファイル
-├── CLAUDE.md                   # AIアシスタント指示
+├── CLAUDE.md                   # Claude Code指示
+├── SETUP.md                    # セットアップガイド
+├── scripts/                    # 管理スクリプト
+│   ├── create-deck.ts         # デッキ生成スクリプト
+│   ├── build-deck.ts          # デッキビルドスクリプト
+│   ├── tsconfig.json          # TypeScript設定
+│   └── utils/                 # ユーティリティモジュール
+├── templates/                  # デッキ雛形
+│   └── default/               # デフォルトテンプレート
+│       ├── package.json       # スクリプト定義
+│       ├── .marprc            # Marp設定
+│       ├── deck.md            # テンプレートMarkdown
+│       ├── assets/            # アセット
+│       └── context/           # AIコンテキスト
+├── docs/
+│   ├── marp/                   # 包括的なMarpドキュメント
+│   │   ├── README.md           # ドキュメント概要
+│   │   ├── 01_marp_overview.md
+│   │   ├── 02_marp_cli_usage.md
+│   │   ├── 03_markdown_syntax.md
+│   │   ├── 04_directives.md
+│   │   ├── 05_theme_development.md
+│   │   └── 06_practical_examples.md
+│   └── ocr-conversion/         # OCR変換ドキュメント
+│       ├── README.md           # 概要とクイックスタート
+│       ├── installation.md     # セットアップ手順
+│       ├── usage.md            # CLIリファレンス
+│       ├── strategies.md       # 変換戦略の比較
+│       └── troubleshooting.md  # トラブルシューティング
 ├── decks/                      # 全プレゼンテーションデッキ
 │   ├── 000_template/           # 再利用可能なテンプレート
+│   │   ├── package.json       # Per-deckスクリプト
+│   │   ├── .marprc            # Marp設定
 │   │   ├── deck.md            # 例付きテンプレート
-│   │   └── assets/            # テンプレートアセット
+│   │   ├── assets/            # テンプレートアセット
+│   │   ├── context/           # AIコンテキスト
+│   │   └── dist/              # ビルド出力
 │   └── 2026-01_sample/        # サンプルデッキ
+│       ├── package.json       # Per-deckスクリプト
+│       ├── .marprc            # Marp設定
 │       ├── deck.md            # サンプルプレゼンテーション
-│       └── assets/            # サンプルアセット
+│       ├── assets/            # サンプルアセット
+│       ├── context/           # AIコンテキスト
+│       └── dist/              # ビルド出力
 ├── shared/                     # 共有リソース
 │   ├── themes/                # カスタムテーマ
 │   │   └── company.css        # 企業テーマ
 │   └── assets/                # 共有アセット（ロゴなど）
-└── dist/                       # ビルド出力（gitignoreされています）
+└── dist/                       # ワークスペースレベルビルド出力（非推奨）
     ├── html/                  # HTMLエクスポート
     ├── pdf/                   # PDFエクスポート
     ├── pptx/                  # PowerPointエクスポート
@@ -511,11 +655,16 @@ marp-workspace/
 
 ## リソース
 
+### Marp関連
 - **Marp公式サイト：** [marp.app](https://marp.app/)
 - **Marp CLIドキュメント：** [github.com/marp-team/marp-cli](https://github.com/marp-team/marp-cli)
 - **Marpit Markdown：** [marpit.marp.app/markdown](https://marpit.marp.app/markdown)
 - **テーマCSSガイド：** [marpit.marp.app/theme-css](https://marpit.marp.app/theme-css)
 - **Marp for VS Code：** [marketplace.visualstudio.com](https://marketplace.visualstudio.com/items?itemName=marp-team.marp-vscode)
+
+### OCR変換関連
+- **Mistral AI Console：** [console.mistral.ai](https://console.mistral.ai)
+- **OCR変換ドキュメント：** [docs/ocr-conversion/](docs/ocr-conversion/)
 - **LibreOfficeダウンロード：** [libreoffice.org/download](https://www.libreoffice.org/download/download/)
 
 ## ライセンス

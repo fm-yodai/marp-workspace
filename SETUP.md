@@ -5,13 +5,23 @@ Marpプレゼンテーションワークスペースをゼロからセットア�
 ## 概要
 
 このガイドでは以下を支援します：
-- 必要なソフトウェアのインストール（Node.js、npm）
+- 必要なソフトウェアのインストール（Node.js v18以上、npm）
 - リポジトリをコンピュータに取得
-- プロジェクトの依存関係をインストール
+- npm workspaces環境のセットアップ
 - テストプレゼンテーションでインストールを確認
+- 新規デッキの作成ワークフロー
 - ワークフロー強化のためのオプションツールのセットアップ
 
 所要時間：初回セットアップで10〜15分。
+
+## npm Workspaces について
+
+このワークスペースはnpm workspaces型アーキテクチャを使用しています：
+
+- **ワークスペースルート**で一度`npm install`すれば、全デッキで使用可能
+- 各デッキは独立したビルドスクリプトを持つが、`node_modules/`は共有
+- ディスク容量を最小化（~177MBのみ、デッキ数に関係なく）
+- 全デッキで同じMarp CLIバージョンを使用し、一貫性を確保
 
 ## 前提条件の確認
 
@@ -199,55 +209,89 @@ dir
 - `package.json`ファイル
 - `README.md`ファイル
 
-### ステップ5：サンプルデッキでテスト
+### ステップ5：npm Workspaces の確認
 
-サンプルプレゼンテーションのライブプレビューを作成しましょう：
+ワークスペースが正しくセットアップされたことを確認：
 
 ```bash
-npm run preview decks/2026-01_sample/deck.md
+npm ls --workspaces
+```
+
+**予想される出力：**
+```
+marp-workspace@1.0.0 /path/to/marp-workspace
+├── @marp-workspace/000_template@1.0.0
+├── @marp-workspace/2026-01_sample@1.0.0
+└── @marp-workspace/2026-02_my-project@1.0.0
+```
+
+これにより、全デッキがワークスペースとして認識されていることが確認できます。
+
+### ステップ6：サンプルデッキでテスト（Per-Deck方式）
+
+デッキディレクトリ内から直接プレビュー：
+
+```bash
+cd decks/2026-01_sample
+npm run dev
 ```
 
 **予想される動作：**
-1. ターミナルに表示：`[Marp] Server is running at http://localhost:8080/`
+1. ターミナルに表示：`Watching for changes...`
 2. デフォルトのブラウザが自動的に開きます
 3. サンプルコンテンツを含むスライドプレゼンテーションが表示されます
-4. ターミナルに表示：`Watching for changes...`
+4. ワークスペースルートの `node_modules/` を自動参照
 
 **編集を試す：**
 1. プレビューを実行したままにする
-2. テキストエディタで`decks/2026-01_sample/deck.md`を開く
+2. テキストエディタで`deck.md`を開く
 3. 小さな変更を加える（例：見出しを編集）
 4. ファイルを保存
 5. ブラウザが自動的に変更内容で更新されます
 
 **プレビューを停止するには：** ターミナルで`Ctrl+C`を押す
 
+**ワークスペースルートに戻る：**
+```bash
+cd ../..
+```
+
 **これが動作すれば、インストールは完了です！** 🎉
 
-### ステップ6：テストエクスポートのビルド
+### ステップ7：テストエクスポートのビルド
 
-PDFエクスポートが動作することを確認しましょう：
+デッキ内でPDFビルドを試す：
 
 ```bash
-npm run build -- --pdf decks/2026-01_sample/deck.md
+cd decks/2026-01_sample
+npm run build:pdf
 ```
 
 **予想される動作：**
 - ターミナルにビルド進捗が表示されます
-- `dist/pdf/2026-01_sample.pdf`にファイルが作成されます
+- `dist/deck.pdf`にファイルが作成されます
 - エラーメッセージなし
 
 **出力を確認：**
 
 ```bash
 # Linux/macOS
-ls -lh dist/pdf/
+ls -lh dist/
 
 # Windows
-dir dist\pdf
+dir dist
 ```
 
-`2026-01_sample.pdf`が適切なファイルサイズ（コンテンツによって通常100KB〜2MB）で表示されるはずです。
+`deck.pdf`が適切なファイルサイズ（コンテンツによって通常100KB〜2MB）で表示されるはずです。
+
+**ワークスペースルートからのビルドも試す：**
+
+```bash
+cd ../..
+npm run build:deck -- 2026-01_sample html
+```
+
+これにより、ワークスペースルートから特定デッキをビルドできることが確認できます。
 
 **PDF生成が失敗した場合：**
 - システムにChromium/Chromeがインストールされていることを確認
@@ -300,9 +344,118 @@ Visual Studio Codeを使用している場合、Marp拡張機能でエディタ�
 - PowerPointで小さな編集のみが必要
 - LibreOfficeをインストールしたくない
 
+## 新規デッキの作成
+
+セットアップが完了したら、新規デッキを作成してみましょう：
+
+### 方法1：デッキジェネレーター（推奨）
+
+インタラクティブなTUIを使用：
+
+```bash
+npm run create-deck
+```
+
+**プロンプトの内容：**
+
+1. **Deck name**: `YYYY-MM_description` 形式で入力（例：`2026-02_quarterly-review`）
+2. **Template source**: デフォルトテンプレートまたは既存デッキから選択
+3. **Presentation title**: プレゼンテーションのタイトル
+4. **Inherit scripts**: 既存デッキ選択時、package.jsonスクリプトを継承するか
+
+**完了後：**
+
+```bash
+cd decks/2026-02_quarterly-review
+npm run dev
+```
+
+すぐにプレビューが開始されます。
+
+### 方法2：手動作成（非推奨）
+
+特別な理由がある場合のみ：
+
+```bash
+# テンプレートをコピー
+cp -r templates/default decks/2026-02_my-deck
+
+# デッキ内で package.json の名前を変更
+cd decks/2026-02_my-deck
+# package.json 内の {{DECK_NAME}} を実際のデッキ名に置換
+
+# deck.md を編集
+# {{DECK_TITLE}} と {{DATE}} を実際の値に置換
+
+# プレビュー
+npm run dev
+```
+
+### デッキの構造
+
+作成されたデッキには以下が含まれます：
+
+```
+decks/2026-02_my-deck/
+├── package.json      # ビルドスクリプト
+├── .marprc           # Marp設定（テーマパスなど）
+├── .gitignore        # dist/ などを除外
+├── deck.md           # プレゼンテーション本体
+├── assets/           # 画像などのリソース
+│   └── README.md     # アセット使用ガイド
+├── context/          # AIコンテキスト
+│   ├── README.md     # コンテキストディレクトリの説明
+│   ├── background.md # プレゼンの背景情報
+│   └── notes.md      # メモ・アイデア
+└── dist/             # ビルド出力（gitignore）
+```
+
+### AIコンテキストの活用
+
+`context/` ディレクトリを活用してAIと効果的に協働：
+
+1. **background.md** を編集：
+   - プレゼンの目的
+   - 対象聴衆
+   - 主要メッセージ
+   - 制約条件（時間、枚数など）
+
+2. **notes.md** を編集：
+   - アイデア
+   - TODO
+   - 参考資料
+
+3. AIにスライド作成を依頼する際、これらのファイルを参照させる
+
+### ワークフロー例
+
+```bash
+# 1. 新規デッキ作成
+npm run create-deck
+# → 2026-02_product-launch を作成
+
+# 2. コンテキスト情報を記入
+cd decks/2026-02_product-launch
+# context/background.md と notes.md を編集
+
+# 3. 開発開始
+npm run dev
+# → ブラウザでプレビュー
+
+# 4. deck.md を編集
+# → 保存するとブラウザが自動更新
+
+# 5. ビルド
+npm run build:all
+# → dist/ に全形式が出力
+
+# 6. 確認
+ls -la dist/
+```
+
 ## 次のステップ
 
-セットアップが完了したら：
+セットアップと最初のデッキ作成が完了したら：
 
 ### 1. 基本を学ぶ
 
@@ -344,7 +497,7 @@ npm run preview decks/2026-02_my-first-deck/deck.md
 ### 一般的なコマンド
 
 ```bash
-# 自動リロード付きライブプレビュー
+# 自動リロード付きライブプレビュー（ウォッチモード）
 npm run preview decks/your-deck/deck.md
 
 # PDFにビルド
@@ -352,6 +505,9 @@ npm run build -- --pdf decks/your-deck/deck.md
 
 # PowerPointにビルド
 npm run build -- --pptx decks/your-deck/deck.md
+
+# 編集可能なPowerPointにビルド（LibreOfficeが必要）
+npm run build:pptx:editable decks/your-deck/deck.md
 
 # 全デッキを全フォーマットにビルド
 npm run build:all
