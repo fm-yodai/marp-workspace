@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "create-deck": "tsx scripts/create-deck.ts",
+    "create-context": "tsx scripts/create-context.ts",
     "build:deck": "tsx scripts/build-deck.ts",
     "ocr:convert": "tsx scripts/ocr-convert-pptx.ts",
     "ocr:install": "node scripts/utils/install-python-deps.js",
