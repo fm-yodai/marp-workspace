@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Language and Communication
+
+**IMPORTANT**: Always communicate with the user in Japanese. All responses, explanations, and messages must be in Japanese, regardless of the language used in code, documentation, or the user's initial message.
+
 ## Project Overview
 
 This is a Marp (Markdown Presentation Ecosystem) environment for creating and managing slide presentations from Markdown files. Marp is a tool that converts Markdown to beautiful slide decks.
@@ -75,6 +79,47 @@ For comprehensive Marp support, use the `/marp` skill, which provides:
 - Pre-built templates for various presentation types
 - Build command generation
 - Troubleshooting assistance
+
+### Context Creator Skill
+
+Use the `/create-context` skill to create or update the `context/` directory files for your deck:
+- **Interactive prompts**: Gather presentation details step by step
+- **Two modes**: Quick Mode (fast input) or Detailed Mode (editor-based)
+- **Smart updates**: Merge new information with existing context
+- **Japanese interface**: Fully localized prompts and templates
+- **Non-interactive mode**: AI agents can automate context creation using CLI arguments or JSON config
+
+**Quick start**:
+```bash
+/create-context          # From Claude Code (interactive)
+npm run create-context   # From command line (interactive)
+
+# Non-interactive mode (for AI agents)
+npm run create-context -- --deck <name> --purpose <text> --audience <text> --key-messages <items> --yes
+npm run create-context -- --config ./context-config.json --yes
+```
+
+This helps organize your presentation's purpose, target audience, key messages, and notes - making it easier for AI to assist with slide creation. See `.claude/skills/create-context/SKILL.md` for detailed documentation.
+
+### Deck Generator Skill
+
+Use the `/create-deck` skill to create new Marp decks:
+- **Interactive deck creation**: Step-by-step prompts for deck setup
+- **Template selection**: Use default template or existing deck as base
+- **Script inheritance**: Optionally inherit npm scripts from template
+- **Non-interactive mode**: AI agents can automate deck creation using CLI arguments or JSON config
+
+**Quick start**:
+```bash
+/create-deck          # From Claude Code (interactive)
+npm run create-deck   # From command line (interactive)
+
+# Non-interactive mode (for AI agents)
+npm run create-deck -- --name <YYYY-MM_name> --title <text> --yes
+npm run create-deck -- --config ./deck-config.json --yes
+```
+
+See `.claude/skills/create-deck/SKILL.md` for detailed documentation.
 
 ### Comprehensive Documentation
 
