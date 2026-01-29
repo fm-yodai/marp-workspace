@@ -4,12 +4,29 @@ import path from 'path';
 import { promptDeckCreation } from './utils/prompts.js';
 import { getExistingDecks, hasCustomThemes, copyDirectory } from './utils/template.js';
 import { parseFrontMatter, stringifyFrontMatter } from './utils/frontmatter.js';
+import {
+  createDeckCommand,
+  parseArgs,
+  isNonInteractiveMode,
+} from './utils/cli-parser.js';
+import {
+  DeckCliArgs,
+  loadDeckFromConfig,
+  parseDeckFromArgs,
+  validateDeckNotExists,
+  validateTemplateExists,
+  formatDeckErrorMessage,
+  formatDeckSuccessMessage,
+} from './utils/non-interactive-deck.js';
 
 const WORKSPACE_ROOT = process.cwd();
 const DECKS_DIR = path.join(WORKSPACE_ROOT, 'decks');
 const TEMPLATES_DIR = path.join(WORKSPACE_ROOT, 'templates');
 
-async function main() {
+/**
+ * インタラクティブモードの実行
+ */
+async function runInteractive() {
   console.log('🎨 Marp Deck Generator\n');
 
   // Get existing decks (excluding 000_template)
@@ -187,6 +204,97 @@ async function createContextDirectory(deckPath: string) {
 
 async function fileExists(filePath: string): Promise<boolean> {
   return fs.access(filePath).then(() => true).catch(() => false);
+}
+
+/**
+ * 非インタラクティブモードの実行
+ */
+async function runNonInteractive(args: DeckCliArgs) {
+  const isConfigMode = !!args.config;
+
+  try {
+    let config: {
+      name: string;
+      title: string;
+      template: string;
+      inheritScripts: boolean;
+    };
+
+    // 設定ファイルまたはコマンドライン引数からデータを読み込み
+    if (isConfigMode) {
+      console.log(`📄 設定ファイルを読み込み中: ${args.config}\n`);
+      const loadedConfig = await loadDeckFromConfig(args.config!);
+      config = {
+        name: loadedConfig.name,
+        title: loadedConfig.title,
+        template: loadedConfig.template || 'default',
+        inheritScripts: loadedConfig.inheritScripts || false,
+      };
+    } else {
+      const parsedConfig = parseDeckFromArgs(args);
+      config = {
+        name: parsedConfig.name,
+        title: parsedConfig.title,
+        template: parsedConfig.template || 'default',
+        inheritScripts: parsedConfig.inheritScripts || false,
+      };
+    }
+
+    // デッキの重複確認
+    await validateDeckNotExists(config.name);
+
+    // テンプレートの存在確認
+    const templatePath = await validateTemplateExists(config.template);
+
+    const deckPath = path.join(DECKS_DIR, config.name);
+
+    console.log(`📁 デッキを作成中: ${config.name}`);
+    console.log(`📋 テンプレート: ${config.template}`);
+    console.log(`📝 タイトル: ${config.title}\n`);
+
+    // デッキディレクトリを作成
+    await fs.mkdir(deckPath, { recursive: true });
+
+    // テンプレートファイルをコピー
+    if (config.template === 'default') {
+      await copyTemplateFiles(templatePath, deckPath, config.name, config.title);
+    } else {
+      await copyFromExistingDeck(
+        templatePath,
+        deckPath,
+        config.name,
+        config.title,
+        config.inheritScripts
+      );
+    }
+
+    // contextディレクトリを作成
+    await createContextDirectory(deckPath);
+
+    console.log(formatDeckSuccessMessage(config.name));
+  } catch (error) {
+    console.error(formatDeckErrorMessage(error as Error, isConfigMode));
+    process.exit(1);
+  }
+}
+
+/**
+ * メイン処理
+ */
+async function main() {
+  // コマンドライン引数をパース
+  const command = createDeckCommand();
+  const args: DeckCliArgs = parseArgs(command);
+
+  // 非インタラクティブモードかどうかを判定
+  const requiredFields = ['name', 'title'];
+  const nonInteractive = isNonInteractiveMode(args, requiredFields);
+
+  if (nonInteractive) {
+    await runNonInteractive(args);
+  } else {
+    await runInteractive();
+  }
 }
 
 main().catch(error => {
